@@ -2,6 +2,8 @@ package beanstalk
 
 import "errors"
 
+const Version = "0.0.1"
+
 type JobCommand int32
 
 const (
