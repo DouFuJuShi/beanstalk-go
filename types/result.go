@@ -1,15 +1,8 @@
-package beanstalk
+package types
 
-import "errors"
+import "github.com/DouFuJuShi/beanstalk-go"
 
-const Version = "0.0.1"
-
-type JobCommand int32
-
-const (
-	Delete JobCommand = iota + 1
-	Bury   JobCommand = iota + 1
-)
+type ExecFunc func(job *beanstalk.Job) *ConsumeResult
 
 type ConsumeResult struct {
 	nextCommand JobCommand
@@ -27,10 +20,3 @@ func (cr ConsumeResult) Err() error {
 func NewConsumeResult(nextCommand JobCommand, err error) ConsumeResult {
 	return ConsumeResult{nextCommand, err}
 }
-
-type execFunc func(job *Job) *ConsumeResult
-
-var (
-	// NoJobError no job
-	NoJobError = errors.New("no job")
-)

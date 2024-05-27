@@ -1,6 +1,7 @@
 package beanstalk
 
 import (
+	"github.com/DouFuJuShi/beanstalk-go/types"
 	"time"
 )
 
@@ -11,10 +12,10 @@ func (c *Consumer) Watch() *Consumer {
 	return c
 }
 
-func (c *Consumer) ReserveWithFunc(f execFunc, timeout time.Duration) (*ConsumeResult, error) {
+func (c *Consumer) ReserveWithFunc(f types.ExecFunc, timeout time.Duration) (*types.ConsumeResult, error) {
 	job := c.Reserve(timeout)
 	if job == nil {
-		return nil, NoJobError
+		return nil, types.NoJobError
 	}
 
 	return f(job), nil
