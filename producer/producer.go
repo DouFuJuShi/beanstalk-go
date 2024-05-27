@@ -9,7 +9,8 @@ import (
 
 type Config struct {
 	Endpoint string
-	Tube     string
+	PoolSize int
+	TubeName string
 }
 
 type Producer struct {
