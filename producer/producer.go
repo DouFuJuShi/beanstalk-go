@@ -2,7 +2,7 @@ package producer
 
 import (
 	"errors"
-	beanstalk2 "github.com/DouFuJuShi/beanstalk-go"
+	"github.com/DouFuJuShi/beanstalk-go"
 	"github.com/DouFuJuShi/beanstalk-go/types"
 	"time"
 )
@@ -34,7 +34,7 @@ func (p *Producer) Put(body []byte, priority uint32, delay time.Duration, ttr ti
 	return p.pool.Get().Put(body, priority, delay, ttr)
 }
 
-func (p *Producer) PutJob(job *beanstalk2.Job) error {
+func (p *Producer) PutJob(job *beanstalk.Job) error {
 	if job == nil {
 		return errors.New("job cannot be nil")
 	}
