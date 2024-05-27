@@ -2,7 +2,7 @@ package producer
 
 import (
 	"errors"
-	"github.com/DouFuJuShi/beanstalk-go"
+	"github.com/DouFuJuShi/beanstalk-go/job"
 	"github.com/DouFuJuShi/beanstalk-go/types"
 	"time"
 )
@@ -18,7 +18,7 @@ type Producer struct {
 	pool Pool
 }
 
-func (p *Producer) Put(body []byte, priority uint32, delay time.Duration, ttr time.Duration) (id uint64, err error) {
+func (p *Producer) put(body []byte, priority uint32, delay time.Duration, ttr time.Duration) (id uint64, err error) {
 	if priority == 0 {
 		priority = types.DefaultPriority
 	}
@@ -34,17 +34,18 @@ func (p *Producer) Put(body []byte, priority uint32, delay time.Duration, ttr ti
 	return p.pool.Get().Put(body, priority, delay, ttr)
 }
 
-func (p *Producer) PutJob(job *beanstalk.Job) error {
+func (p *Producer) Put(job *job.Job) error {
 	if job == nil {
 		return errors.New("job cannot be nil")
 	}
 
-	id, err := p.Put(job.Body(), job.Priority(), job.Delay(), job.TTR())
+	id, err := p.put(job.Body(), job.Priority(), job.Delay(), job.TTR())
 	if err != nil {
 		return err
 	}
 
 	job.SetID(id)
+
 	return err
 }
 

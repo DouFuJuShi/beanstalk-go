@@ -1,12 +1,10 @@
-package beanstalk
+package job
 
 import (
-	"github.com/beanstalkd/go-beanstalk"
 	"time"
 )
 
 type Job struct {
-	conn     *beanstalk.Conn
 	id       uint64
 	body     []byte
 	priority uint32
@@ -66,9 +64,8 @@ func (j *Job) Stats() error {
 	return nil
 }
 
-func NewJob(conn *beanstalk.Conn, id uint64, body []byte, priority uint32, delay time.Duration, ttr time.Duration, reserved bool) *Job {
+func NewJob(id uint64, body []byte, priority uint32, delay time.Duration, ttr time.Duration, reserved bool) *Job {
 	return &Job{
-		conn:     conn,
 		id:       id,
 		body:     body,
 		priority: priority,

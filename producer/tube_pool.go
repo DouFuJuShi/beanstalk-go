@@ -1,13 +1,14 @@
 package producer
 
 import (
+	"github.com/beanstalkd/go-beanstalk"
 	"sync"
 	"time"
 )
 
 type Pool interface {
 	Get() *Tube
-	Release(tube Tube)
+	Release(tube *Tube)
 	Close() error
 	Reconnect() error
 
@@ -18,6 +19,14 @@ type TubePool struct {
 	endpoint string
 	pool     []*Tube
 	lock     sync.Mutex
+}
+
+func (t *TubePool) Get() *Tube {
+	t.lock.Lock()
+	defer t.lock.Unlock()
+	tube := t.pool[0]
+	t.pool = t.pool[1:]
+	return tube
 }
 
 func (t *TubePool) Release(tube *Tube) {
@@ -45,14 +54,23 @@ func (t *TubePool) Reconnect() error {
 	return nil
 }
 
-func (t *TubePool) Get() *Tube {
-	t.lock.Lock()
-	defer t.lock.Unlock()
-	tube := t.pool[0]
-	t.pool = t.pool[1:]
-	return tube
-}
-
 func (t *TubePool) Put(body []byte, priority uint32, delay time.Duration, ttr time.Duration) (id uint64, err error) {
 	return t.Get().Put(body, priority, delay, ttr)
+}
+
+func NewTubePool(config Config) *TubePool {
+	tubes := make([]*Tube, config.PoolSize)
+	for i := 0; i < config.PoolSize; i++ {
+		conn, err := beanstalk.Dial("tcp", config.Endpoint)
+		if err != nil {
+			panic(err)
+		}
+
+		tubes = append(tubes, &Tube{tube: beanstalk.NewTube(conn, config.TubeName)})
+	}
+
+	return &TubePool{
+		endpoint: config.Endpoint,
+		pool:     tubes,
+	}
 }

@@ -1,6 +1,7 @@
-package beanstalk
+package consumer
 
 import (
+	"github.com/DouFuJuShi/beanstalk-go/job"
 	"github.com/DouFuJuShi/beanstalk-go/types"
 	"time"
 )
@@ -21,8 +22,8 @@ func (c *Consumer) ReserveWithFunc(f types.ExecFunc, timeout time.Duration) (*ty
 	return f(job), nil
 }
 
-func (c *Consumer) Reserve(timeout time.Duration) *Job {
-	return &Job{}
+func (c *Consumer) Reserve(timeout time.Duration) *job.Job {
+	return &job.Job{}
 }
 
 func NewConsumer() *Consumer {

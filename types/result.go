@@ -1,8 +1,10 @@
 package types
 
-import "github.com/DouFuJuShi/beanstalk-go"
+import (
+	"github.com/DouFuJuShi/beanstalk-go/job"
+)
 
-type ExecFunc func(job *beanstalk.Job) *ConsumeResult
+type ExecFunc func(job *job.Job) *ConsumeResult
 
 type ConsumeResult struct {
 	nextCommand JobCommand
