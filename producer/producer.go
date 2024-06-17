@@ -7,15 +7,8 @@ import (
 	"time"
 )
 
-type Config struct {
-	Endpoint string
-	PoolSize int
-	TubeName string
-}
-
 type Producer struct {
-	pc   Config
-	pool Pool
+	cmd Cmd
 }
 
 func (p *Producer) put(body []byte, priority uint32, delay time.Duration, ttr time.Duration) (id uint64, err error) {
@@ -31,7 +24,7 @@ func (p *Producer) put(body []byte, priority uint32, delay time.Duration, ttr ti
 		ttr = time.Minute
 	}
 
-	return p.pool.Get().Put(body, priority, delay, ttr)
+	return p.cmd.Put(body, priority, delay, ttr)
 }
 
 func (p *Producer) Put(job *job.Job) error {
@@ -49,8 +42,13 @@ func (p *Producer) Put(job *job.Job) error {
 	return err
 }
 
-func NewProducer(pool Pool) (*Producer, error) {
-	return &Producer{
-		pool: pool,
-	}, nil
+func NewProducer(endpoint, tube string, poolSize ...uint) (*Producer, error) {
+	var cmd Cmd
+	if len(poolSize) > 0 && poolSize[0] > 0 {
+		cmd = NewPool(endpoint, tube, poolSize[0])
+	} else {
+		cmd = NewConn(endpoint, tube)
+	}
+
+	return &Producer{cmd: cmd}, nil
 }

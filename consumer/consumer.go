@@ -14,12 +14,12 @@ func (c *Consumer) Watch() *Consumer {
 }
 
 func (c *Consumer) ReserveWithFunc(f types.ExecFunc, timeout time.Duration) (*types.ConsumeResult, error) {
-	job := c.Reserve(timeout)
-	if job == nil {
+	reservedJob := c.Reserve(timeout)
+	if reservedJob == nil {
 		return nil, types.NoJobError
 	}
 
-	return f(job), nil
+	return f(reservedJob), nil
 }
 
 func (c *Consumer) Reserve(timeout time.Duration) *job.Job {

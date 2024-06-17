@@ -1,20 +1,13 @@
 package main
 
 import (
+	"fmt"
+	"github.com/DouFuJuShi/beanstalk-go/job"
 	"github.com/DouFuJuShi/beanstalk-go/producer"
 )
 
 func main() {
-	config := producer.Config{
-		Endpoint: "127.0.0.1:11300",
-		PoolSize: 10,
-		TubeName: "test",
-	}
-
-	pool := producer.NewTubePool(config)
-
-	_, err := producer.NewProducer(pool)
-	if err != nil {
-		panic(err)
-	}
+	p, err := producer.NewProducer("127.0.0.1:11311", "test", 10)
+	err = p.Put(&job.Job{})
+	fmt.Println(err)
 }
