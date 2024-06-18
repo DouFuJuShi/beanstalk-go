@@ -13,6 +13,8 @@ type pool struct {
 func (p *pool) Get() *Conn {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
+
+	// TODO: conns为nil 怎么处理
 	conn := p.conns[0]
 	p.conns = p.conns[1:]
 	return conn
