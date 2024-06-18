@@ -16,7 +16,7 @@ func (p *pool) Get() *Conn {
 
 	// TODO: conns为nil 怎么处理
 	conn := p.conns[0]
-	p.conns = p.conns[1:]
+	copy(p.conns, p.conns[1:])
 	return conn
 }
 
