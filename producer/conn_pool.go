@@ -1,32 +1,52 @@
 package producer
 
 import (
+	"errors"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
+var ErrClosed = errors.New("conn pool is closed")
+
 type pool struct {
-	mutex sync.Mutex
-	conns []*Conn
+	mutex     sync.Mutex
+	_isClosed int32
+
+	conns   []*Conn
+	channel chan *Conn
 }
 
-func (p *pool) Get() *Conn {
+func (p *pool) isClosed() bool {
+	return atomic.LoadInt32(&p._isClosed) == 1
+}
+
+func (p *pool) Get() (*Conn, error) {
+	if p.isClosed() {
+		return nil, ErrClosed
+	}
+
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 
 	// TODO: conns为nil 怎么处理
 	conn := p.conns[0]
 	copy(p.conns, p.conns[1:])
-	return conn
+	return conn, nil
 }
 
 func (p *pool) Put(conn *Conn) {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
+	if p.isClosed() {
+		return
+	}
 	p.conns = append(p.conns, conn)
 }
 
 func (p *pool) Close() error {
+	atomic.StoreInt32(&p._isClosed, 1)
+
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 	conns := p.conns
@@ -42,7 +62,10 @@ type Pool struct {
 }
 
 func (p *Pool) Put(body []byte, priority uint32, delay time.Duration, ttr time.Duration) (id uint64, err error) {
-	conn := p.pool.Get()
+	conn, err := p.pool.Get()
+	if err != nil {
+		return 0, err
+	}
 
 	defer p.pool.Put(conn)
 
