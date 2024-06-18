@@ -12,9 +12,8 @@ var ErrClosed = errors.New("conn pool is closed")
 type pool struct {
 	mutex     sync.Mutex
 	_isClosed int32
-
-	conns   []*Conn
-	channel chan *Conn
+	conns     []*Conn
+	// channel chan *Conn
 }
 
 func (p *pool) isClosed() bool {
